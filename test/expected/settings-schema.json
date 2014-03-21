@@ -1,0 +1,67 @@
+{
+    "title": "Sample Schema",
+    "description": "Schema for JS application settings",
+    "numExample": 1,
+    "numArrayExample": [
+        1,
+        2,
+        3,
+        4,
+        5
+    ],
+    "objExample": {
+        "title": "Object Example"
+    },
+    "objArrayExample": [
+        {
+            "id1": 1,
+            "id2": 2,
+            "id3": 33,
+            "id4": 44,
+            "id5": 5
+        }
+    ],
+    "simpleArray": [
+        "Array1"
+    ],
+    "complexArray": [
+        {
+            "personal": {
+                "name": [
+                    {
+                        "first": "Anil"
+                    },
+                    {
+                        "middle": "Leo"
+                    },
+                    {
+                        "last": "Pinto"
+                    }
+                ]
+            }
+        },
+        {
+            "career": {
+                "experience": [
+                    {
+                        "cpp": "10 years",
+                        "javaScript": "2 years"
+                    },
+                    {
+                        "android": "4 years",
+                        "angularJS": "2 months"
+                    },
+                    {
+                        "ios": "4.5 years"
+                    },
+                    {
+                        "blackberry": "1 years"
+                    }
+                ]
+            }
+        },
+        {
+            "url": "https://github.com/AnilPinto/grunt-settings-schema"
+        }
+    ]
+}

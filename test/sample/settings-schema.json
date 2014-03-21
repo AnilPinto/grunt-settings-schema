@@ -1,0 +1,46 @@
+{
+    "numExample":1,
+    "numArrayExample":[1,2,3,4,5],
+    "objExample": {
+      "title":"Object Example"
+    },
+    "objArrayExample":[{"id1":1,"id2":2,"id3":33,"id4":44,"id5":5}],
+    "simpleArray": ["Array1"],
+    "complexArray": [
+        {
+            "personal":
+                {
+                    "name":[
+                        {
+                            "first":"Anil"
+                        },
+                        {
+                            "middle":"Leo"
+                        },
+                        {
+                            "last":"Pinto"
+                        }
+                    ]
+                }
+        },
+        {
+            "career":
+                {
+                    "experience":[
+                        {
+                            "cpp":"10 years"
+                        },
+                        {
+                            "android":"4 years"
+                        },
+                        {
+                            "ios":"4 years"
+                        }
+                    ]
+                }
+        },
+        {
+            "url":"https://github.com/AnilPinto/grunt-settings-schema"
+        }
+    ]
+}
