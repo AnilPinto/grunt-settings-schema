@@ -36,7 +36,8 @@ module.exports = function (grunt) {
          	generateSchema: {
   				options: {
   					title:'Sample Schema',
-  					description:'Schema for JS application settings'
+  					description:'Schema for JS application settings',
+                    output: 'tmp/settings.json'
     			},
     			schema: {
     				'tmp/settings-schema.json': [
@@ -44,7 +45,7 @@ module.exports = function (grunt) {
     				]
     			},
     			settings: {
-    				'tmp/settings.json': [
+    				'tmp/settings-overrides.json': [
     					'test/sample//**/settings.json'
     				]
     			}

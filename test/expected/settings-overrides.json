@@ -1,4 +1,8 @@
 {
+    "auth": {
+        "sessionTtl": 500,
+        "productDataAuthStateRequired": "AuthenticatedVerified"
+    },
     "productizataion": {
         "sessionTtl": 700,
         "stateLevels": {

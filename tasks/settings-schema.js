@@ -7,26 +7,50 @@
  */
 
 'use strict';
-//var _ = require('underscore')
+var jsonSettingsSchema = require('json-settings-schema');
 
 module.exports = function (grunt) {
 
-  // Please see the Grunt documentation for more information regarding task
-  // creation: http://gruntjs.com/creating-tasks
-        grunt.registerMultiTask('settingsSchema', 'Read all settings-schema.json and settings.json from folder and sub-folders and create consolidated settings-schema.json and settings.json file.', function () {
+    // Please see the Grunt documentation for more information regarding task
+    // creation: http://gruntjs.com/creating-tasks
+    grunt.registerMultiTask('settingsSchema', 'Read all settings-schema.json and settings.json from folder and sub-folders and create consolidated settings-schema.json and settings.json file. Validate them and save validated result in settings.json file.', function () {
 
-        processSchemas(this.data.schema,this.data.options);
-        processSettings(this.data.settings);
+        var destinationPath = "tmp/grunt-angular-settings.json";
+        if(this.data.options.output != null) {
+            destinationPath = process.cwd() + "/" + this.data.options.output;
+        }
 
+        var schema = processDefaultSchemas(this.data.schema,this.data.options);
+        var settingsOverrides = processSettingsOverrides(this.data.settings);
+        processMasterSchema(schema, settingsOverrides, destinationPath);
     });
 
     /**
-     * This function will iterate through each settings file and create one merged json file
-     * and save this json object in the destination file.
-     * It expect array of src file and name and path for destination file.
-     * @param settings
+     * This function will validate the master schema file and settings-override file and save the
+     * result in output file.
+     * @param schema
+     * @param settingsOverrides
+     * @param destinationPath
      */
-    function processSettings(settings) {
+    function processMasterSchema(schema, settingsOverrides, destinationPath) {
+        var settingsJSON = "";
+        jsonSettingsSchema.buildSettings(settingsOverrides, schema, function (err, settings) {
+
+            if(err) {
+                throw err;
+            }
+
+            saveFile(settings,destinationPath);
+        });
+    }
+
+    /**
+    * This function will iterate through each settings file and create one merged json file
+    * and save this json object in the destination file.
+    * It expect array of src file and name and path for destination file.
+    * @param settings
+    */
+    function processSettingsOverrides(settings) {
         var settingsJSON = {},
             destFullFilepath = null;
 
@@ -39,21 +63,25 @@ module.exports = function (grunt) {
                 }
             }
         }
+
         saveFile(settingsJSON,destFullFilepath);
+
+        return settingsJSON;
     }
 
+
     /**
-     * Read the settings.json file and merge it in settingsJSON.
-     * @param settingsJSON
-     * @param filepath
-     */
+    * Read the settings.json file and merge it in settingsJSON.
+    * @param settingsJSON
+    * @param filepath
+    */
     function addSettings(settingsJSON,filepath) {
         var settings = null,
             srcFullFilepath = process.cwd() + '/' + filepath;
 
         if ( !grunt.file.exists(srcFullFilepath)) {
             grunt.log.writeln('File does not exist: ' + srcFullFilepath);
-            return
+            return;
         }
 
         settings = grunt.file.readJSON(srcFullFilepath);
@@ -64,13 +92,13 @@ module.exports = function (grunt) {
     }
 
     /**
-     * This function will iterate through each schema file and create one merged json file
-     * and save this json object in the destination file.
-     * It expect array of src file and name and path for destination file.
-     * @param schema
-     * @param options
-     */
-    function processSchemas(schema,options) {
+    * This function will iterate through each schema file and create one merged json file
+    * and save this json object in the destination file.
+    * It expect array of src file and name and path for destination file.
+    * @param schema
+    * @param options
+    */
+    function processDefaultSchemas(schema,options) {
 
         if (schema == null ) {
             throw new TypeError('SettingsSchema: \'schema\' is missing');
@@ -100,13 +128,14 @@ module.exports = function (grunt) {
         }
 
         saveFile(schemaJSON,destFullFilepath);
+        return schemaJSON;
     }
 
     /**
-     * Read the schema file and merge it in schemaJSON.
-     * @param schemaJSON
-     * @param filepath
-     */
+    * Read the schema file and merge it in schemaJSON.
+    * @param schemaJSON
+    * @param filepath
+    */
     function addSchema(schemaJSON,filepath) {
         var srcFullFilepath = process.cwd() + '/' + filepath;
 
@@ -120,10 +149,10 @@ module.exports = function (grunt) {
     }
 
     /**
-     * This function will iterate through each schema object and merge it in schemaJSON.
-     * @param schemaJSON
-     * @param schema
-     */
+    * This function will iterate through each schema object and merge it in schemaJSON.
+    * @param schemaJSON
+    * @param schema
+    */
     function addJSON(schemaJSON, schema) {
         for(var propertyName in schema) {
             if(!schemaJSON.hasOwnProperty(propertyName)) {
@@ -152,10 +181,10 @@ module.exports = function (grunt) {
     }
 
     /**
-     * Save the JSON data in file
-     * @param jsonData
-     * @param filepath
-     */
+    * Save the JSON data in file
+    * @param jsonData
+    * @param filepath
+    */
     function saveFile(jsonData, filepath) {
         if(filepath != null) {
             grunt.file.write(filepath, JSON.stringify(jsonData,null,4));

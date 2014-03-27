@@ -1,5 +1,6 @@
 {
-    "objExample": {
-        "title": "New Title"
+    "auth": {
+        "sessionTtl": 500,
+        "productDataAuthStateRequired": "AuthenticatedVerified"
     }
 }
