@@ -154,29 +154,40 @@ module.exports = function (grunt) {
     * @param schema
     */
     function addJSON(schemaJSON, schema) {
-        for(var propertyName in schema) {
-            if(!schemaJSON.hasOwnProperty(propertyName)) {
-                schemaJSON[propertyName]=schema[propertyName];
-            } else if (typeof schema[propertyName] === 'object') {
-                if (schema[propertyName]  instanceof Array) {
-                    var len = schema[propertyName].length;
-                    for(var i =0; i< len;i++) {
-                        if (typeof schema[propertyName][i] === 'object') {
-                            addJSON(schemaJSON[propertyName],schema[propertyName]);
-                        } else {
-                            if(schemaJSON[propertyName].indexOf(schema[propertyName][i]) == -1){
-                                schemaJSON[propertyName].push(schema[propertyName][i]);
-                            }
-                        }
+        var propertyName, len, i, tmpPropertyName;
+        for (propertyName in schema) {
+
+            // ignore if this is not an actual property
+            if (!schemaJSON.hasOwnProperty(propertyName)) {
+                schemaJSON[propertyName] = schema[propertyName];
+                continue;
+            }
+
+            // simply assign if this is a primitive
+            if ('object' !== typeof schema[propertyName]) {
+                schemaJSON[propertyName] = schema[propertyName];
+                continue
+            }
+
+            // recursively merge properties as needed
+            if (schema[propertyName] instanceof Array) {
+                len = schema[propertyName].length;
+                for (i = 0; i < len; i++) {
+                    if ('object' === typeof schema[propertyName][i]) {
+                        addJSON(schemaJSON[propertyName], schema[propertyName]);
+                        continue;
                     }
-                } else {
-                    for(var tmpPropertyName in schema[propertyName]) {
-                        addJSON(schemaJSON[propertyName],schema[propertyName]);
+                    if (-1 === schemaJSON[propertyName].indexOf(schema[propertyName][i])) {
+                        schemaJSON[propertyName].push(schema[propertyName][i]);
                     }
                 }
-            } else {
-                schemaJSON[propertyName]=schema[propertyName];
+                continue;
             }
+
+            for (tmpPropertyName in schema[propertyName]) {
+                addJSON(schemaJSON[propertyName], schema[propertyName]);
+            }
+
         }
     }
 
