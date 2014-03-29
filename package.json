@@ -1,6 +1,6 @@
 {
     "name": "grunt-settings-schema",
-    "version": "0.0.5",
+    "version": "0.1.0",
     "description": "Read all settings-schema.json and settings.json from folder and sub-folders and create consolidated settings-schema.json and settings.json file. Validate them and save validated result in settings.json file.",
     "repository": {
         "type": "git",
@@ -30,7 +30,7 @@
     ],
     "dependencies": {
         "grunt": "~0.4.2",
-        "json-settings-schema": "~0.1.0",
+        "json-settings-schema": "~0.2.1",
         "deepmerge": "~0.2.7",
         "q": "~1.0.1"
     },
