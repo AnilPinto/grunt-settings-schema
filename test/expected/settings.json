@@ -20,25 +20,8 @@
             }
         }
     },
-    "productizataion": {
-        "sessionTtl": 700,
-        "productDataAuthStateRequired": "AuthenticatedPending",
-        "stateLevels": {
-            "Unauthenticated": 1234,
-            "Identified": 1,
-            "IdentifiedVerified": 2,
-            "Authenticated": 3,
-            "AuthenticatedVerified": 4
-        },
-        "productizataionSessionEvents": {
-            "end": {
-                "authState": "Unauthenticated",
-                "uiState": "login"
-            },
-            "timeout": {
-                "authState": "Identified",
-                "uiState": "product.State"
-            }
-        }
+    "productization": {
+        "exampleA": 300,
+        "exampleB": "notfoobar"
     }
 }

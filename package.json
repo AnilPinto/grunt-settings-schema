@@ -1,39 +1,55 @@
 {
-  "name": "grunt-settings-schema",
-  "version": "0.0.4",
-  "description": "Read all settings-schema.json and settings.json from folder and sub-folders and create consolidated settings-schema.json and settings.json file. Validate them and save validated result in settings.json file.",
+    "name": "grunt-settings-schema",
+    "version": "0.0.5",
+    "description": "Read all settings-schema.json and settings.json from folder and sub-folders and create consolidated settings-schema.json and settings.json file. Validate them and save validated result in settings.json file.",
     "repository": {
         "type": "git",
         "url": "https://github.com/AnilPinto/grunt-settings-schema.git"
     },
-  "author": {
-    "name": "Anil Pinto",
-    "email": "anil.leo.pinto@gmail.com"
-  },
-  "keywords": [
-    "settings-shcema"
-  ],
-  "main": "Gruntfile.js",
-  "engines": {
-    "node": ">= 0.8.0"
-  },
-  "licenses": [
-    {
-        "type": "MIT"
-    }
-  ],
-  "dependencies": {
-    "grunt": "~0.4.2",
-    "json-settings-schema": "~0.1.0"
-  },
-  "devDependencies": {
-    "grunt-contrib-clean": "~0.5.0",
-    "grunt-contrib-jshint": "~0.8.0",
-    "grunt-contrib-nodeunit": "~0.3.0",
-    "jshint-stylish": "~0.1.5",
-    "load-grunt-tasks": "~0.3.0"
-  },
-  "scripts": {
-    "test": "grunt test"
-  }
+    "contributors": [
+        {
+            "name": "Anil Pinto",
+            "email": "anil.leo.pinto@gmail.com"
+        },
+        {
+            "name": "Matthew J. Martin",
+            "email": "matthew.mar10@gmail.com"
+        }
+    ],
+    "keywords": [
+        "settings-shcema"
+    ],
+    "main": "Gruntfile.js",
+    "engines": {
+        "node": ">= 0.8.0"
+    },
+    "licenses": [
+        {
+            "type": "MIT"
+        }
+    ],
+    "dependencies": {
+        "grunt": "~0.4.2",
+        "json-settings-schema": "~0.1.0",
+        "deepmerge": "~0.2.7",
+        "q": "~1.0.1"
+    },
+    "devDependencies": {
+        "grunt-contrib-clean": "~0.5.0",
+        "grunt-contrib-jshint": "~0.8.0",
+        "grunt-contrib-nodeunit": "~0.3.0",
+        "jshint-stylish": "~0.1.5",
+        "load-grunt-tasks": "~0.3.0"
+    },
+    "scripts": {
+        "test": "grunt test"
+    },
+    "readme": "grunt-settings-schema\n=====================\n\nRead all settings-schema.json and settings.json from folder and sub-folders and create consolidated settings-schema.json and settings.json file.\n",
+    "readmeFilename": "README.md",
+    "_id": "grunt-settings-schema@0.0.5",
+    "dist": {
+        "shasum": "41fb72ea567b3938e2e4a129d79b476e937a40e0"
+    },
+    "_from": "grunt-settings-schema@",
+    "_resolved": "https://registry.npmjs.org/grunt-settings-schema/-/grunt-settings-schema-0.0.5.tgz"
 }

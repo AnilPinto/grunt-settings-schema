@@ -12,11 +12,11 @@
             ],
             "required": true
         },
-        "productizataion": {
+        "productization": {
             "type": "object",
             "oneOf": [
                 {
-                    "$ref": "#/definitions/productizataionSettings"
+                    "$ref": "#/definitions/productizationSettings"
                 }
             ],
             "required": true
@@ -24,7 +24,7 @@
     },
     "required": [
         "auth",
-        "productizataion"
+        "productization"
     ],
     "definitions": {
         "authSettings": {
@@ -146,73 +146,21 @@
                 "uiState"
             ]
         },
-        "productizataionSettings": {
-            "description": "authentication core settings",
+        "productizationSettings": {
+            "description": "productization core settings",
             "type": "object",
             "properties": {
-                "sessionTtl": {
-                    "description": "how long the session should remain active before the session expired event is triggered",
+                "exampleA": {
+                    "description": "example A",
                     "type": "integer",
                     "default": 300
                 },
-                "productDataAuthStateRequired": {
-                    "description": "what auth state is required to fetch product data for use in determining auth requirements",
+                "exampleB": {
+                    "description": "example B",
                     "type": "string",
-                    "default": "AuthenticatedPending"
-                },
-                "stateLevels": {
-                    "type": "object",
-                    "oneOf": [
-                        {
-                            "$ref": "#/definitions/stateLevels"
-                        }
-                    ]
-                },
-                "productizataionSessionEvents": {
-                    "type": "object",
-                    "oneOf": [
-                        {
-                            "$ref": "#/definitions/productizataionSessionEvents"
-                        }
-                    ]
+                    "default": "foobar"
                 }
             }
-        },
-        "productizataionSessionEvents": {
-            "description": "a mapping of session related event types and what should happen in those cases",
-            "type": "object",
-            "properties": {
-                "end": {
-                    "description": "event for when a session is ended, usually due to switching user e.g. logout",
-                    "type": "object",
-                    "oneOf": [
-                        {
-                            "$ref": "#/definitions/authSessionEvent"
-                        }
-                    ],
-                    "default": {
-                        "authState": "Unauthenticated",
-                        "uiState": "login"
-                    }
-                },
-                "timeout": {
-                    "description": "event for when a session expires",
-                    "type": "object",
-                    "oneOf": [
-                        {
-                            "$ref": "#/definitions/authSessionEvent"
-                        }
-                    ],
-                    "default": {
-                        "authState": "Identified",
-                        "uiState": "product.State"
-                    }
-                }
-            },
-            "required": [
-                "end",
-                "timeout"
-            ]
         }
     }
 }

@@ -2,71 +2,73 @@
  * grunt-settings-schema
  * 
  *
- * Copyright (c) 2014 Anil Pinto
+ * Copyright (c) 2014 Monitise Americas, Inc.
  * Licensed under the MIT license.
  */
 
 'use strict';
 
 module.exports = function (grunt) {
-  // load all npm grunt tasks
-  require('load-grunt-tasks')(grunt);
+    // load all npm grunt tasks
+    require('load-grunt-tasks')(grunt);
 
-  // Project configuration.
-  grunt.initConfig({
-    jshint: {
-      all: [
-        'Gruntfile.js',
-        'tasks/*.js',
-        '<%= nodeunit.tests %>'
-      ],
-      options: {
-        jshintrc: '.jshintrc',
-        reporter: require('jshint-stylish')
-      }
-    },
+    // Project configuration.
+    grunt.initConfig({
+        jshint: {
+            all: [
+                'Gruntfile.js',
+                'tasks/*.js',
+                '<%= nodeunit.tests %>'
+            ],
+            options: {
+                jshintrc: '.jshintrc',
+                reporter: require('jshint-stylish')
+            }
+        },
 
-    // Before generating any new files, remove any previously-created files.
-    clean: {
-      tests: ['tmp']
-    },
+        // Before generating any new files, remove any previously-created files.
+        clean: {
+            tests: ['tmp']
+        },
 
-    // Configuration to be run (and then tested).
-    settingsSchema: {
-         	generateSchema: {
-  				options: {
-  					title:'Sample Schema',
-  					description:'Schema for JS application settings',
-                    output: 'tmp/settings.json'
-    			},
-    			schema: {
-    				'tmp/settings-schema.json': [
-    					'test/sample/**/settings-schema.json'
-    				]
-    			},
-    			settings: {
-    				'tmp/settings-overrides.json': [
-    					'test/sample//**/settings.json'
-    				]
-    			}
-    		}  
-    	},
+        // Configuration to be run (and then tested).
+        settingsSchema: {
+            options: {
+                schema: {
+                    title: 'Sample Schema',
+                    description: 'Schema for JS application settings'
+                }
+            },
+            target: {
+                schema: {
+                    'target': 'tmp/settings-schema.json',
+                    'src': [
+                        'test/sample/**/settings-schema.json'
+                    ]
+                },
+                settings: {
+                    'tmp/settings.json': [
+                        'test/sample/**/settings.json'
+                    ]
+                }
+            }
+        },
 
-    // Unit tests.
-    nodeunit: {
-      tests: ['test/*_test.js']
-    }
+        // Unit tests.
+        nodeunit: {
+            tests: ['test/*test.js']
+        }
 
-  });
+    });
 
-  // Actually load this plugin's task(s).
-  grunt.loadTasks('tasks');
+    // Actually load this plugin's task(s).
+    grunt.loadTasks('tasks');
 
-  // Whenever the "test" task is run, first clean the "tmp" dir, then run this
-  // plugin's task(s), then test the result.
-  grunt.registerTask('test', ['clean', 'settingsSchema', 'nodeunit']);
+    // Whenever the "test" task is run, first clean the "tmp" dir, then run this
+    // plugin's task(s), then test the result.
+    grunt.registerTask('test', ['clean', 'settingsSchema', 'nodeunit']);
 
-  // By default, lint and run all tests.
-  grunt.registerTask('default', ['test']);
+    // By default, lint and run all tests.
+    grunt.registerTask('default', ['test']);
 
 };

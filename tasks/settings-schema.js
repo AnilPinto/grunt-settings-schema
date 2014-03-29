@@ -1,204 +1,203 @@
+'use strict';
+
 /**
  * grunt-settings-schema
- * 
  *
- * Copyright (c) 2014 Anil Pinto
+ * Copyright (c) 2014 Monitise Americas, Inc.
  * Licensed under the MIT license.
  */
 
-'use strict';
-var jsonSettingsSchema = require('json-settings-schema');
+var jsonSettingsSchema = require('json-settings-schema'),
+    path = require('path'),
+    merge = require('deepmerge'),
+    Q = require('q');
 
 module.exports = function (grunt) {
 
-    // Please see the Grunt documentation for more information regarding task
-    // creation: http://gruntjs.com/creating-tasks
-    grunt.registerMultiTask('settingsSchema', 'Read all settings-schema.json and settings.json from folder and sub-folders and create consolidated settings-schema.json and settings.json file. Validate them and save validated result in settings.json file.', function () {
+    var taskDescription = 'Read all settings-schema.json and settings.json from folder and sub-folders and create ' +
+                          'consolidated settings-schema.json and settings.json file. Validate them and save validated ' +
+                          'result in settings.json file.',
 
-        var destinationPath = "tmp/grunt-angular-settings.json";
-        if(this.data.options.output != null) {
-            destinationPath = process.cwd() + "/" + this.data.options.output;
-        }
+        buildMasterSchema = function (masterSchemaJson, schemaSourceFiles) {
+            var i, j,
+                schemaSourceFilePath,
+                schemaSourceFilesInPath,
+                schemaJson,
+                appendAndEnforceUniqueness = function (_targetProperty, _masterSchemaJson, _schemaJson) {
 
-        var schema = processDefaultSchemas(this.data.schema,this.data.options);
-        var settingsOverrides = processSettingsOverrides(this.data.settings);
-        processMasterSchema(schema, settingsOverrides, destinationPath);
-    });
+                    var _propertyName;
 
-    /**
-     * This function will validate the master schema file and settings-override file and save the
-     * result in output file.
-     * @param schema
-     * @param settingsOverrides
-     * @param destinationPath
-     */
-    function processMasterSchema(schema, settingsOverrides, destinationPath) {
-        var settingsJSON = "";
-        jsonSettingsSchema.buildSettings(settingsOverrides, schema, function (err, settings) {
+                    // append `properties` into schema, checking for duplicate names
+                    for (_propertyName in schemaJson[_targetProperty]) {
 
-            if(err) {
-                throw err;
-            }
+                        if (!schemaJson[_targetProperty].hasOwnProperty(_propertyName)) {
+                            continue;
+                        }
 
-            saveFile(settings,destinationPath);
-        });
-    }
+                        if (_masterSchemaJson[_targetProperty].hasOwnProperty(_propertyName)) {
+                            grunt.fail.warn('composite schema already has property named \'' + _propertyName + '\'' +
+                                ' within \'' + _targetProperty + '\' will be overwritten by definition in file \'' +
+                                schemaSourceFilesInPath[j] + '\'');
+                        }
+                        _masterSchemaJson[_targetProperty][_propertyName] = _schemaJson[_targetProperty][_propertyName];
+                    }
+                };
 
-    /**
-    * This function will iterate through each settings file and create one merged json file
-    * and save this json object in the destination file.
-    * It expect array of src file and name and path for destination file.
-    * @param settings
-    */
-    function processSettingsOverrides(settings) {
-        var settingsJSON = {},
-            destFullFilepath = null;
+            // append all schema files in expanded form (e.g. account for things like `some/**/*file-names.json`)
+            for(i = 0; i < schemaSourceFiles.length; i++) {
+                                                                            2
+                // build the file path based on current directory
+                schemaSourceFilePath = schemaSourceFiles[i];
 
-        for(var destFilepath in settings) {
-            destFullFilepath = process.cwd() + '/' + destFilepath;
-            for(var srcFilepath in settings[destFilepath]) {
-                var srcFilepathArray = grunt.file.expand(settings[destFilepath][srcFilepath]);
-                for(var fileIndex in srcFilepathArray) {
-                    addSettings(settingsJSON,srcFilepathArray[fileIndex]);
-                }
-            }
-        }
+                // expand the file path in the event of wildcard usage
+                schemaSourceFilesInPath = grunt.file.expand(schemaSourceFilePath);
 
-        saveFile(settingsJSON,destFullFilepath);
+                // all files matching the pattern
+                for(j = 0; j < schemaSourceFilesInPath.length; j++) {
 
-        return settingsJSON;
-    }
+                    // grab the contents of the new schema file to be appended
+                    schemaJson = grunt.file.readJSON(schemaSourceFilesInPath[j]);
 
+                    // add required properties to master schema, if any are specified
+                    if (schemaJson.required) {
 
-    /**
-    * Read the settings.json file and merge it in settingsJSON.
-    * @param settingsJSON
-    * @param filepath
-    */
-    function addSettings(settingsJSON,filepath) {
-        var settings = null,
-            srcFullFilepath = process.cwd() + '/' + filepath;
+                        // enforce that required is an array, otherwise something is wrong with the schema
+                        if ('array' !== grunt.util.kindOf(schemaJson.required)) {
+                            throw new TypeError('invalid type \'' + grunt.util.kindOf(schemaJson.required) + '\' for \'required\'' +
+                                ' attribute within JSON schema (array expected) in file \'' + schemaSourceFilesInPath[j] + '\'');
+                        }
 
-        if ( !grunt.file.exists(srcFullFilepath)) {
-            grunt.log.writeln('File does not exist: ' + srcFullFilepath);
-            return;
-        }
+                        masterSchemaJson.required = masterSchemaJson.required.concat(grunt.util.toArray(schemaJson.required));
+                    }
 
-        settings = grunt.file.readJSON(srcFullFilepath);
-
-        for(var propertyName in settings) {
-            settingsJSON[propertyName] = settings[propertyName];
-        }
-    }
-
-    /**
-    * This function will iterate through each schema file and create one merged json file
-    * and save this json object in the destination file.
-    * It expect array of src file and name and path for destination file.
-    * @param schema
-    * @param options
-    */
-    function processDefaultSchemas(schema,options) {
-
-        if (schema == null ) {
-            throw new TypeError('SettingsSchema: \'schema\' is missing');
-        }
-
-        var destFullFilepath = null,
-            schemaJSON = {
-                'title': 'Schema Title',
-                'description': 'Schema for JS client application settings'
-            };
-
-        for(var destFilepath in schema) {
-            destFullFilepath = process.cwd() + '/' + destFilepath;
-            for(var srcFilepath in schema[destFilepath]) {
-                var srcFilepathArray = grunt.file.expand(schema[destFilepath][srcFilepath]);
-                for(var fileIndex in srcFilepathArray) {
-                    addSchema(schemaJSON,srcFilepathArray[fileIndex]);
-                }
-            }
-        }
-
-        if(options != null) {
-            schemaJSON.title = options.title || schemaJSON.title;
-            schemaJSON.description = options.description || schemaJSON.description;
-        } else {
-            grunt.log.writeln('Warning: Title and description are not defined for schema settings. Using the default values');
-        }
-
-        saveFile(schemaJSON,destFullFilepath);
-        return schemaJSON;
-    }
-
-    /**
-    * Read the schema file and merge it in schemaJSON.
-    * @param schemaJSON
-    * @param filepath
-    */
-    function addSchema(schemaJSON,filepath) {
-        var srcFullFilepath = process.cwd() + '/' + filepath;
-
-        if (!grunt.file.exists(srcFullFilepath)) {
-            grunt.log.writeln('File does not exist: ' + srcFullFilepath);
-            return
-        }
-
-        var schema = grunt.file.readJSON(srcFullFilepath);
-        addJSON(schemaJSON,schema);
-    }
-
-    /**
-    * This function will iterate through each schema object and merge it in schemaJSON.
-    * @param schemaJSON
-    * @param schema
-    */
-    function addJSON(schemaJSON, schema) {
-        var propertyName, len, i, tmpPropertyName;
-        for (propertyName in schema) {
-
-            // ignore if this is not an actual property
-            if (!schemaJSON.hasOwnProperty(propertyName)) {
-                schemaJSON[propertyName] = schema[propertyName];
-                continue;
-            }
-
-            // simply assign if this is a primitive
-            if ('object' !== typeof schema[propertyName]) {
-                schemaJSON[propertyName] = schema[propertyName];
-                continue
-            }
-
-            // recursively merge properties as needed
-            if (schema[propertyName] instanceof Array) {
-                len = schema[propertyName].length;
-                for (i = 0; i < len; i++) {
-                    if ('object' === typeof schema[propertyName][i]) {
-                        addJSON(schemaJSON[propertyName], schema[propertyName]);
+                    // if there are no properties defined, the schema file is useless
+                    if (!schemaJson.hasOwnProperty('properties')) {
+                        grunt.log.error('schema file \'' + schemaSourceFilesInPath[j] +
+                            '\' has no \'properties\' attribute and will be ignored (is it a valid JSON schema file?)');
                         continue;
                     }
-                    if (-1 === schemaJSON[propertyName].indexOf(schema[propertyName][i])) {
-                        schemaJSON[propertyName].push(schema[propertyName][i]);
+
+                    // append all children of properties but enforce each newly added one as unique
+                    // this ensures that no root-level properties gets silently overwritten within schemas
+                    appendAndEnforceUniqueness('properties', masterSchemaJson, schemaJson);
+
+                    if (!schemaJson.definitions) {
+                        continue;
                     }
+
+                    // append all children of definitions but enforce each newly added one as unique
+                    // this ensures that no definitions get silently overwritten within schemas
+                    appendAndEnforceUniqueness('definitions', masterSchemaJson, schemaJson);
                 }
+            }
+            return masterSchemaJson;
+        };
+
+
+
+    // Please see the Grunt documentation for more information regarding task
+    // creation: http://gruntjs.com/creating-tasks
+    grunt.registerMultiTask('settingsSchema', taskDescription, function () {
+
+        var done = this.async(),
+            multiTaskTargetConfigPath = this.name + '.' + this.target,
+            schemaTargetConfigPath = multiTaskTargetConfigPath + '.schema.target',
+            schemaSourcesConfigPath = multiTaskTargetConfigPath + '.schema.src',
+            settingsConfigPath = multiTaskTargetConfigPath + '.settings',
+            masterSchemaTargetOutputFile,
+            schemaSources,
+            masterSchema,
+            settingsTargetsAndSources,
+            settingsTargetOutputFileName,
+            i, j,
+            mergedSettings,
+            newSettings,
+            settingsFiles,
+            settingsFilePath,
+
+            // set up defaults
+            options = this.options({
+                schema: {
+                    title: 'Generated Combined Schema',
+                    description: 'Generated on ' + new Date()
+                }
+            }),
+
+            validateAndWriteSettings = function (_settingsTargetOutputFileName, _mergedSettings, _masterSchema) {
+                console.log(_settingsTargetOutputFileName);
+                var pending = Q.defer();
+                jsonSettingsSchema.validate(_mergedSettings, _masterSchema, function (err, validatedSettings) {
+                    if (err) {
+                        console.log(err);
+                        grunt.fail.fatal(err, 1);
+                    }
+                    grunt.file.write(_settingsTargetOutputFileName, JSON.stringify(validatedSettings, null, 4));
+                    pending.resolve();
+                });
+                return pending.promise;
+            },
+
+            // async tasks remaining
+            validating = [];
+
+        this.requiresConfig(schemaTargetConfigPath);
+        this.requiresConfig(schemaSourcesConfigPath);
+        this.requiresConfig(settingsConfigPath);
+
+        masterSchemaTargetOutputFile = grunt.config(schemaTargetConfigPath);
+        schemaSources = grunt.config(schemaSourcesConfigPath);
+        settingsTargetsAndSources = grunt.config(settingsConfigPath);
+
+        grunt.verbose.writeln('building master schema from sources: ', schemaSources);
+        masterSchema = {
+            title: options.schema.title,
+            description: options.schema.description,
+            type: 'object',
+            properties: {},
+            required: [],
+            definitions: {}
+        };
+        masterSchema = buildMasterSchema(masterSchema, schemaSources);
+
+        grunt.verbose.writeln('writing master schema file result from merged sub-schemas to file: ' + masterSchemaTargetOutputFile);
+        grunt.file.write(masterSchemaTargetOutputFile, JSON.stringify(masterSchema, null, 4));
+
+        grunt.verbose.writeln('building all specified settings files from sources');
+
+        // build settings for each target: ['sources'] combination specified
+        for (settingsTargetOutputFileName in settingsTargetsAndSources) {
+            // ignore bogus properties
+            if (!settingsTargetsAndSources.hasOwnProperty(settingsTargetOutputFileName)) {
                 continue;
             }
 
-            for (tmpPropertyName in schema[propertyName]) {
-                addJSON(schemaJSON[propertyName], schema[propertyName]);
+            grunt.verbose.writeln('merging all settings files into target output file ' + settingsTargetOutputFileName + '...');
+            mergedSettings = {};
+            for(i = 0; i < settingsTargetsAndSources[settingsTargetOutputFileName].length; i++) {
+                // allow for wildcard file paths
+                settingsFilePath = settingsTargetsAndSources[settingsTargetOutputFileName][i];
+                // settingsFilePath = settingsTargetsAndSources[settingsTargetOutputFileName][i];
+                settingsFiles = grunt.file.expand(settingsFilePath);
+                if (!settingsFiles.length) {
+                    grunt.verbose.warn('no files found for path: ', settingsFilePath);
+                    continue;
+                }
+                for(j = 0; j < settingsFiles.length; j++) {
+                    newSettings = grunt.file.readJSON(settingsFiles[j]);
+                    grunt.verbose.write('merging file ' + settingsFiles[j] + '...');
+                    mergedSettings = merge(mergedSettings, newSettings);
+                    grunt.verbose.ok();
+                }
             }
 
+            grunt.verbose.writeln('writing to file ' + settingsTargetOutputFileName);
+            validating.push(validateAndWriteSettings(settingsTargetOutputFileName, mergedSettings, masterSchema));
         }
-    }
 
-    /**
-    * Save the JSON data in file
-    * @param jsonData
-    * @param filepath
-    */
-    function saveFile(jsonData, filepath) {
-        if(filepath != null) {
-            grunt.file.write(filepath, JSON.stringify(jsonData,null,4));
-        }
-    }
+        Q.all(validating).then(function() {
+            done();
+        });
+
+    });
+
 };

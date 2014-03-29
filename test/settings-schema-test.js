@@ -32,7 +32,7 @@ exports.settingsSchema = {
 
     var actual = grunt.file.read('tmp/settings-schema.json');
     var expected = grunt.file.read('test/expected/settings-schema.json');
-    test.equal(actual, expected, 'should describe what the default behavior is.');
+    test.equal(actual, expected, 'generated settings schema matches expected result');
 
     test.done();
   },
@@ -41,7 +41,7 @@ exports.settingsSchema = {
 
     var actual = grunt.file.read('tmp/settings.json');
     var expected = grunt.file.read('test/expected/settings.json');
-    test.equal(actual, expected, 'should describe what the custom option(s) behavior is.');
+    test.equal(actual, expected, 'generated settings matches expected result');
 
     test.done();
   }

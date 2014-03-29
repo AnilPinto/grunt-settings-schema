@@ -1,8 +1,5 @@
 {
-    "productizataion": {
-        "sessionTtl": 700,
-        "stateLevels": {
-            "Unauthenticated": 1234
-        }
+    "productization": {
+        "exampleB": "notfoobar"
     }
 }
