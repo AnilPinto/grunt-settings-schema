@@ -148,7 +148,7 @@ module.exports = function (grunt) {
         schemaSources = grunt.config(schemaSourcesConfigPath);
         settingsTargetsAndSources = grunt.config(settingsConfigPath);
 
-        grunt.verbose.writeln('building master schema from sources: ', schemaSources);
+        grunt.verbose.writeln('Building master schema from sources: ', schemaSources);
         masterSchema = {
             title: options.schema.title,
             description: options.schema.description,
@@ -159,10 +159,10 @@ module.exports = function (grunt) {
         };
         masterSchema = buildMasterSchema(masterSchema, schemaSources);
 
-        grunt.verbose.writeln('writing master schema file result from merged sub-schemas to file: ' + masterSchemaTargetOutputFile);
+        grunt.verbose.writeln('Writing master schema file result from merged sub-schemas to file: ' + masterSchemaTargetOutputFile);
         grunt.file.write(masterSchemaTargetOutputFile, JSON.stringify(masterSchema, null, 4));
 
-        grunt.verbose.writeln('building all specified settings files from sources');
+        grunt.verbose.writeln('Building all specified settings files from sources');
 
         // build settings for each target: ['sources'] combination specified
         for (settingsTargetOutputFileName in settingsTargetsAndSources) {
@@ -171,7 +171,7 @@ module.exports = function (grunt) {
                 continue;
             }
 
-            grunt.verbose.writeln('merging all settings files into target output file ' + settingsTargetOutputFileName + '...');
+            grunt.verbose.writeln('Merging all settings files into target output file ' + settingsTargetOutputFileName + '...');
             mergedSettings = {};
             for(i = 0; i < settingsTargetsAndSources[settingsTargetOutputFileName].length; i++) {
                 // allow for wildcard file paths
@@ -179,18 +179,18 @@ module.exports = function (grunt) {
                 // settingsFilePath = settingsTargetsAndSources[settingsTargetOutputFileName][i];
                 settingsFiles = grunt.file.expand(settingsFilePath);
                 if (!settingsFiles.length) {
-                    grunt.verbose.warn('no files found for path: ', settingsFilePath);
+                    grunt.verbose.warn('No files found for path: ', settingsFilePath);
                     continue;
                 }
                 for(j = 0; j < settingsFiles.length; j++) {
                     newSettings = grunt.file.readJSON(settingsFiles[j]);
-                    grunt.verbose.write('merging file ' + settingsFiles[j] + '...');
+                    grunt.verbose.write('Merging file ' + settingsFiles[j] + '...');
                     mergedSettings = merge(mergedSettings, newSettings);
                     grunt.verbose.ok();
                 }
             }
 
-            grunt.verbose.writeln('writing to file ' + settingsTargetOutputFileName);
+            grunt.verbose.writeln('Writing to file ' + settingsTargetOutputFileName);
             validating.push(validateAndWriteSettings(settingsTargetOutputFileName, mergedSettings, masterSchema));
         }
 
