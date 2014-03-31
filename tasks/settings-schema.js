@@ -8,7 +8,6 @@
  */
 
 var jsonSettingsSchema = require('json-settings-schema'),
-    path = require('path'),
     merge = require('deepmerge'),
     Q = require('q');
 
@@ -45,7 +44,7 @@ module.exports = function (grunt) {
 
             // append all schema files in expanded form (e.g. account for things like `some/**/*file-names.json`)
             for(i = 0; i < schemaSourceFiles.length; i++) {
-                                                                            2
+
                 // build the file path based on current directory
                 schemaSourceFilePath = schemaSourceFiles[i];
 
