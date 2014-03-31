@@ -108,6 +108,7 @@ module.exports = function (grunt) {
             masterSchema,
             settingsTargetsAndSources,
             settingsTargetOutputFileName,
+            settingsTargetOutputFileNameConfigProcessed,
             i, j,
             mergedSettings,
             newSettings,
@@ -123,11 +124,9 @@ module.exports = function (grunt) {
             }),
 
             validateAndWriteSettings = function (_settingsTargetOutputFileName, _mergedSettings, _masterSchema) {
-                console.log(_settingsTargetOutputFileName);
                 var pending = Q.defer();
                 jsonSettingsSchema.validate(_mergedSettings, _masterSchema, function (err, validatedSettings) {
                     if (err) {
-                        console.log(err);
                         grunt.fail.fatal(err, 1);
                     }
                     grunt.file.write(_settingsTargetOutputFileName, JSON.stringify(validatedSettings, null, 4));
@@ -170,12 +169,13 @@ module.exports = function (grunt) {
                 continue;
             }
 
-            grunt.verbose.writeln('Merging all settings files into target output file ' + settingsTargetOutputFileName + '...');
+            settingsTargetOutputFileNameConfigProcessed = grunt.config.process(settingsTargetOutputFileName);
+
+            grunt.verbose.writeln('Merging all settings files into target output file ' + settingsTargetOutputFileNameConfigProcessed + '...');
             mergedSettings = {};
             for(i = 0; i < settingsTargetsAndSources[settingsTargetOutputFileName].length; i++) {
                 // allow for wildcard file paths
-                settingsFilePath = settingsTargetsAndSources[settingsTargetOutputFileName][i];
-                // settingsFilePath = settingsTargetsAndSources[settingsTargetOutputFileName][i];
+                settingsFilePath = grunt.config.process(settingsTargetsAndSources[settingsTargetOutputFileName][i]);
                 settingsFiles = grunt.file.expand(settingsFilePath);
                 if (!settingsFiles.length) {
                     grunt.verbose.warn('No files found for path: ', settingsFilePath);
@@ -189,8 +189,8 @@ module.exports = function (grunt) {
                 }
             }
 
-            grunt.verbose.writeln('Writing to file ' + settingsTargetOutputFileName);
-            validating.push(validateAndWriteSettings(settingsTargetOutputFileName, mergedSettings, masterSchema));
+            grunt.verbose.writeln('Writing to file ' + settingsTargetOutputFileNameConfigProcessed);
+            validating.push(validateAndWriteSettings(settingsTargetOutputFileNameConfigProcessed, mergedSettings, masterSchema));
         }
 
         Q.all(validating).then(function() {

@@ -14,6 +14,10 @@ module.exports = function (grunt) {
 
     // Project configuration.
     grunt.initConfig({
+
+        tmpDir: 'tmp',
+        testDir: 'test',
+
         jshint: {
             all: [
                 'Gruntfile.js',
@@ -41,14 +45,14 @@ module.exports = function (grunt) {
             },
             target: {
                 schema: {
-                    'target': 'tmp/settings-schema.json',
+                    'target': '<%= tmpDir %>/settings-schema.json',
                     'src': [
-                        'test/sample/**/settings-schema.json'
+                        '<%= testDir %>/sample/**/settings-schema.json'
                     ]
                 },
                 settings: {
-                    'tmp/settings.json': [
-                        'test/sample/**/settings.json'
+                    '<%= tmpDir %>/settings.json': [
+                        '<%= testDir %>/sample/**/settings.json'
                     ]
                 }
             }
