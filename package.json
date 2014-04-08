@@ -30,7 +30,7 @@
   ],
   "dependencies": {
     "grunt": "~0.4.2",
-    "json-settings-schema": "~0.6.0",
+    "json-settings-schema": "~0.7.0",
     "deepmerge": "~0.2.7",
     "q": "~1.0.1"
   },
