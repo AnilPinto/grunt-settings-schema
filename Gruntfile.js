@@ -61,6 +61,15 @@ module.exports = function (grunt) {
         // Unit tests.
         nodeunit: {
             tests: ['test/*test.js']
+        },
+        release: {
+            options: {
+                github: {
+                    repo: 'AnilPinto/grunt-settings-schema', //put your user/repo here
+                    usernameVar: 'GITHUB_USERNAME', //ENVIRONMENT VARIABLE that contains Github username
+                    passwordVar: 'GITHUB_PASSWORD' //ENVIRONMENT VARIABLE that contains Github password
+                }
+            }
         }
 
     });

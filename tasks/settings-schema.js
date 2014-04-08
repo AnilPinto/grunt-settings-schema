@@ -9,7 +9,8 @@
 
 var jsonSettingsSchema = require('json-settings-schema'),
     merge = require('deepmerge'),
-    Q = require('q');
+    Q = require('q'),
+    util = require('util');
 
 module.exports = function (grunt) {
 
@@ -127,6 +128,10 @@ module.exports = function (grunt) {
                 var pending = Q.defer();
                 jsonSettingsSchema.validate(_mergedSettings, _masterSchema, function (err, validatedSettings) {
                     if (err) {
+                        // IMPORTANT: keep this raw logging call in here to make sure a nice verbose error message is displayed
+                        console.log(util.inspect(err, {
+                            depth: null
+                        }));
                         grunt.fail.fatal(err, 1);
                     }
                     grunt.file.write(_settingsTargetOutputFileName, JSON.stringify(validatedSettings, null, 4));
