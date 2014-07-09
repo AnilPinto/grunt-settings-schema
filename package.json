@@ -1,6 +1,6 @@
 {
   "name": "grunt-settings-schema",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Read all settings-schema.json and settings.json from folder and sub-folders and create consolidated settings-schema.json and settings.json file. Validate them and save validated result in settings.json file.",
   "repository": {
     "type": "git",
